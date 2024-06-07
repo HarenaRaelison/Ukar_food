@@ -9,6 +9,7 @@ const bodyParser = require("body-parser");
 const ingredientRoutes = require("./src/stockUkar/main/ingredients/routes");
 const CategorieRoutes = require("./src/stockUkar/main/categories/routes");
 const AchatRoutes = require("./src/stockUkar/main/achat/routes");
+const stockRoutes = require('./src/stockUkar/main/stockage/routes');
 app.use(bodyParser.json());
 app.use(cors());
 app.get("/", (req, res) => {
@@ -22,3 +23,4 @@ app.use("/main/dashDoard", dashDoardRoutes);
 app.use("/ingredient", ingredientRoutes);
 app.use("/achat", AchatRoutes);
 app.use("/Categorie", CategorieRoutes);
+app.use("/Stockage", stockRoutes);

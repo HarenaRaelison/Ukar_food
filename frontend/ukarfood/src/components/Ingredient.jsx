@@ -12,6 +12,8 @@ import {
   Grid,
   IconButton,
   InputAdornment,
+  MenuItem,
+  Select,
   Snackbar,
   TextField,
   Typography,
@@ -22,13 +24,14 @@ import React, { useEffect, useState } from "react";
 
 export default function Ingredient() {
   const [ingredients, setIngredients] = useState([]);
+  const [categories, setCategories] = useState([]); // État pour stocker les catégories
   const [open, setOpen] = useState(false);
   const [currentIngredient, setCurrentIngredient] = useState({
-    "idIngred": 0,
-    "nomIngred": "",
-    "qteIngred": 0,
-    "idCate": 0,
-    "prixIngred": 0,
+    idIngred: 0,
+    nomIngred: "",
+    qteIngred: 0,
+    idCate: 0,
+    prixIngred: 0,
   });
   const [editMode, setEditMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +41,7 @@ export default function Ingredient() {
 
   useEffect(() => {
     fetchIngredients();
+    fetchCategories(); // Charger les catégories à l'initialisation du composant
   }, []);
 
   const fetchIngredients = async () => {
@@ -53,13 +57,26 @@ export default function Ingredient() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/Categorie"); // Assurez-vous que cette URL est correcte
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      showSnackbar(
+        "Une erreur s'est produite lors du chargement des catégories.",
+        "error"
+      );
+    }
+  };
+
   const handleClickOpen = (
     ingredient = {
-      "idIngred": 0,
-      "nomIngred": "",
-      "qteIngred": 0,
-      "idCate": 0,
-      "prixIngred": 0,
+      idIngred: 0,
+      nomIngred: "",
+      qteIngred: 0,
+      idCate: 0,
+      prixIngred: 0,
     }
   ) => {
     setCurrentIngredient(ingredient);
@@ -70,11 +87,11 @@ export default function Ingredient() {
   const handleClose = () => {
     setOpen(false);
     setCurrentIngredient({
-      "idIngred": 0,
-      "nomIngred": "",
-      "qteIngred": 0,
-      "idCate": 0,
-      "prixIngred": 0,
+      idIngred: 0,
+      nomIngred: "",
+      qteIngred: 0,
+      idCate: 0,
+      prixIngred: 0,
     });
   };
 
@@ -97,14 +114,14 @@ export default function Ingredient() {
         );
         return;
       }
-  
+
       const newIngredientData = {
-        "nomIngred": currentIngredient.nomIngred,
-        "qteIngred": parseInt(currentIngredient.qteIngred),
-        "idCate": parseInt(currentIngredient.idCate),
-        "prixIngred": parseInt(currentIngredient.prixIngred),
+        nomIngred: currentIngredient.nomIngred,
+        qteIngred: parseInt(currentIngredient.qteIngred),
+        idCate: parseInt(currentIngredient.idCate),
+        prixIngred: parseInt(currentIngredient.prixIngred),
       };
-  
+
       if (editMode) {
         await axios.put(
           `http://localhost:8000/ingredient/${currentIngredient.idIngred}`,
@@ -112,14 +129,8 @@ export default function Ingredient() {
         );
         showSnackbar("L'ingrédient a été modifié avec succès.", "success");
       } else {
-        try {
-          await axios.post("http://localhost:8000/ingredient/", newIngredientData);
-          showSnackbar("L'ingrédient a été ajouté avec succès.", "success");
-        } catch (error) {
-          console.log(error)
-        }
-       
-        
+        await axios.post("http://localhost:8000/ingredient", newIngredientData);
+        showSnackbar("L'ingrédient a été ajouté avec succès.", "success");
       }
       fetchIngredients();
       handleClose();
@@ -131,7 +142,7 @@ export default function Ingredient() {
       );
     }
   };
-  
+
   const handleDelete = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet ingrédient ?")) {
       try {
@@ -252,15 +263,24 @@ export default function Ingredient() {
             value={currentIngredient.qteIngred}
             onChange={handleChange}
           />
-          <TextField
+          <Select
             margin="dense"
             name="idCate"
-            label="ID Catégorie"
-            type="text"
+            label="Catégorie"
             fullWidth
             value={currentIngredient.idCate}
             onChange={handleChange}
-          />
+          >
+            {categories.map((category) => (
+              
+              <MenuItem key={category.idCate} value={category.idCate}>
+                {
+                category.NomCate
+                
+                }
+              </MenuItem>
+            ))}
+          </Select>
           <TextField
             margin="dense"
             name="prixIngred"
@@ -297,4 +317,3 @@ export default function Ingredient() {
     </Container>
   );
 }
-
